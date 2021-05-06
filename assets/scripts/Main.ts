@@ -219,8 +219,7 @@ export default class NewClass extends cc.Component {
         for (var k = 0; k < this.worldDataList.length; k++){
             var o = this.worldDataList[k];
             var info = data.find(item => {
-                console.log(item.openId, o._openid)
-                item.openId === o._openid;
+                return item.openId === o._openid;
             });
             if (info) {
                 o.nickName = info.nickName;
