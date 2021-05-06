@@ -45,7 +45,7 @@ export default class NewClass extends cc.Component {
     init(rank: number, avatarUrl: string, name: string, score: string, openid: string) {
         this.openid = openid;
         this.labelRank.string = `${rank}`;
-        this.labelName.string = `${name}`;
+        this.labelName.string = `${name?name:"未知姓名"}`;
         this.labelScore.string = `${score}星`;
         
         var avatar = this.avatar;

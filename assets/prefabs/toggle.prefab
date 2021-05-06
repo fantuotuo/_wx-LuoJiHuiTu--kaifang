@@ -36,9 +36,9 @@
     "_opacity": 255,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 4,
+      "g": 195,
+      "b": 46,
       "a": 255
     },
     "_contentSize": {
@@ -55,7 +55,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        110,
+        -110,
         0,
         0,
         0,
@@ -160,8 +160,8 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "世界排行",
-    "_N$string": "世界排行",
+    "_string": "好友排行",
+    "_N$string": "好友排行",
     "_fontSize": 30,
     "_lineHeight": 40,
     "_enableWrapText": true,
@@ -233,7 +233,13 @@
       "__id__": 5
     },
     "nodeCanvas": null,
-    "index": 1,
+    "index": 0,
+    "spWhite": {
+      "__uuid__": "2415cd38-8cee-49bc-a233-c237a9dd521f"
+    },
+    "spGreen": {
+      "__uuid__": "8a7c9fc4-738a-4f2b-8843-fc20666e2c1c"
+    },
     "_id": ""
   },
   {

@@ -97,7 +97,7 @@ export default class NewClass extends cc.Component {
                 const self = this.friendsDataList.find(item => item.openid === this.selfOpenid);
                 if (self) {
                     this.labelMyName.string = `${self.nickname}`;
-                    this.labelMyScore.string = `${this.getScore(self.KVDataList)}`;
+                    this.labelMyScore.string = `${this.getScore(self.KVDataList)}星`;
                     var avatar = this.spMyAvatar;
                     cc.loader.load({ url: self.avatarUrl, type: 'jpg' }, function (err, tex) {
                         avatar.spriteFrame = new cc.SpriteFrame(tex);
@@ -189,12 +189,14 @@ export default class NewClass extends cc.Component {
                 case 1:
                     // 世界
                     this.worldDataList = data.rankdata as WorldRankData[];
+                    var idList = data.rankdata.map(item => {
+                        return item._openid;
+                    });
                     wx.getUserInfo({
-                        openIdList: data.rankdata.map(item => {
-                            return item._openid;
-                        }),
+                        openIdList: idList,
                         lang: 'zh_CN',
                         success: (res: { data: UserInfo[] }) => {
+                            console.log("getUserInfo",res,idList)
                             this.updateWorldDataItem(res.data);
                         },
                         fail: (res) => {
@@ -215,7 +217,6 @@ export default class NewClass extends cc.Component {
      * 更新世界数据
     */
     updateWorldDataItem(data: UserInfo[]) {
-        console.log("updateWorldDataItem",data)
         for (var k = 0; k < this.worldDataList.length; k++){
             var o = this.worldDataList[k];
             var info = data.find(item => {

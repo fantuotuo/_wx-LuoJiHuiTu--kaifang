@@ -18,7 +18,7 @@ export default class NewClass extends cc.Component {
     set act(v) {
         this._act = v;
         // 
-        this.sp.node.color = v ? cc.color(4, 195, 46) : cc.color(255, 255, 255);
+        this.sp.spriteFrame = v ? this.spGreen : this.spWhite;
     }
 
 
@@ -29,6 +29,12 @@ export default class NewClass extends cc.Component {
     nodeCanvas: cc.Node = null;
     @property(cc.Integer)
     index: number = 0;
+
+    @property(cc.SpriteFrame)
+    spWhite: cc.SpriteFrame = null;
+    @property(cc.SpriteFrame)
+    spGreen: cc.SpriteFrame = null;
+
 
 
     onTouch() {
