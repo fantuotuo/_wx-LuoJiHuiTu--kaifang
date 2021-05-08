@@ -3,6 +3,7 @@ var wx = window["wx"];
 const { ccclass, property } = cc._decorator;
 import UserBar from "./UserBar";
 import Toggle from "./Toggle";
+import Modal from "./Modal";
 
 
 interface WorldRankData {
@@ -43,12 +44,14 @@ export default class NewClass extends cc.Component {
     private worldDataList: WorldRankData[] = [];
     private giftStorageKey: string = new Date().toDateString();
 
-    _rankType: number = 0;
+    _rankType: number = -1;
     get rankType() {
         return this._rankType;
     }
     set rankType(v) {
+        var change = v !== this._rankType;
         this._rankType = v;
+        if (!change) return;
         // 
         this.toggleArr.forEach((toggle, i) => {
             toggle.act = v === i;
@@ -79,12 +82,14 @@ export default class NewClass extends cc.Component {
     spMyAvatar: cc.Sprite = null;
     @property(Toggle)
     toggleArr: Toggle[] = [];
+    @property(Modal)
+    modal: Modal = null;
 
 
 
 
     /**
-     * 获取好友托管数据
+     * 获取好友托管数据（包括自己）
     */
     initFriendsData() {
         wx.getFriendCloudStorage({
@@ -176,9 +181,10 @@ export default class NewClass extends cc.Component {
 
     onLoad() {
         this.log("sub load");
+        this.modal.hide();
         if (!this.isWechat()) return;
-        this.rankType = 0;
 
+        this.rankType = 0;
         wx.onMessage(data => {
             this.log("接收主域发来的消息数据：", data);
             switch (data.messageType) {
@@ -189,20 +195,21 @@ export default class NewClass extends cc.Component {
                 case 1:
                     // 世界
                     this.worldDataList = data.rankdata as WorldRankData[];
-                    var idList = data.rankdata.map(item => {
-                        return item._openid;
-                    });
-                    wx.getUserInfo({
-                        openIdList: idList,
-                        lang: 'zh_CN',
-                        success: (res: { data: UserInfo[] }) => {
-                            console.log("getUserInfo",res,idList)
-                            this.updateWorldDataItem(res.data);
-                        },
-                        fail: (res) => {
+                    this.rankType === 1 && this.drawWorldRankList();
+                    // var idList = data.rankdata.map(item => {
+                    //     return item._openid;
+                    // });
+                    // wx.getUserInfo({
+                    //     openIdList: idList,
+                    //     lang: 'zh_CN',
+                    //     success: (res: { data: UserInfo[] }) => {
+                    //         console.log("getUserInfo",res,idList)
+                    //         this.updateWorldDataItem(res.data);
+                    //     },
+                    //     fail: (res) => {
                             
-                        }
-                    });
+                    //     }
+                    // });
                     break;
                 default:
                     break;
@@ -216,19 +223,19 @@ export default class NewClass extends cc.Component {
     /**
      * 更新世界数据
     */
-    updateWorldDataItem(data: UserInfo[]) {
-        for (var k = 0; k < this.worldDataList.length; k++){
-            var o = this.worldDataList[k];
-            var info = data.find(item => {
-                return item.openId === o._openid;
-            });
-            if (info) {
-                o.nickName = info.nickName;
-                o.avatarUrl = info.avatarUrl;
-            }
-        }
-        this.rankType === 1 && this.drawWorldRankList();
-    }
+    // updateWorldDataItem(data: UserInfo[]) {
+    //     for (var k = 0; k < this.worldDataList.length; k++){
+    //         var o = this.worldDataList[k];
+    //         var info = data.find(item => {
+    //             return item.openId === o._openid;
+    //         });
+    //         if (info) {
+    //             o.nickName = info.nickName;
+    //             o.avatarUrl = info.avatarUrl;
+    //         }
+    //     }
+    //     this.rankType === 1 && this.drawWorldRankList();
+    // }
     isWechat() { 
         return cc.sys.platform === cc.sys.WECHAT_GAME || cc.sys.platform === cc.sys.WECHAT_GAME_SUB;
     }
@@ -264,7 +271,8 @@ export default class NewClass extends cc.Component {
         return "-";
     }
     /**
-     * 获取我的：基本信息、托管数据【作废】
+     * 【作废】
+     * 获取我的：基本信息、托管数据
      * @param key 获取的键值
     */
     getMyRank(key: string) {
@@ -284,7 +292,6 @@ export default class NewClass extends cc.Component {
         });
         wx.getUserInfo({
             openIdList: ["selfOpenId"],
-
             success: (res: { data: UserInfo[] }) => {
                 this.log("成功获取用户信息", res);
                 var data = res.data;
@@ -292,9 +299,6 @@ export default class NewClass extends cc.Component {
                     var obj = data[0];
                     name = obj.nickName;
                     avatarUrl = obj.avatarUrl;
-                    // 缓存myAvantarUrl
-                    // this.myAvantarUrl = avatarUrl;
-                    
                     this.labelMyName.string = `${name}`;
                     var spMyAvatar = this.spMyAvatar;
                     cc.loader.load({ url: avatarUrl, type: 'jpg' }, function (err, tex) {

@@ -1,4 +1,5 @@
 import { Data } from "./Data";
+import Modal from "./Modal";
 
 
 const { ccclass, property } = cc._decorator;
@@ -45,7 +46,7 @@ export default class NewClass extends cc.Component {
     init(rank: number, avatarUrl: string, name: string, score: string, openid: string) {
         this.openid = openid;
         this.labelRank.string = `${rank}`;
-        this.labelName.string = `${name?name:"未知姓名"}`;
+        this.labelName.string = `${name?name:"未知昵称"}`;
         this.labelScore.string = `${score}星`;
         
         var avatar = this.avatar;
@@ -83,11 +84,7 @@ export default class NewClass extends cc.Component {
                 this.checkCanZan();
             },
             fail: (res) => {
-                wx.showModal({
-                    title: "点赞失败！",
-                    content: "一天只能给同一个人点赞一次哦！",
-                    showCancel: false,
-                });
+                this.showModal("一天只能给同一个人点赞一次哦！");
             }
         });
     }
@@ -102,5 +99,12 @@ export default class NewClass extends cc.Component {
         var ZanPre = ZanObjToday && ZanObjToday.indexOf(this.openid) >= 0;
 
         this.nodeBtnZan.active = !openidSame && !ZanPre;
+    }
+    showModal(str: string) {
+        var node = cc.find("Canvas/modal");
+        if (!node) return;
+        var comp = node.getComponent(Modal);
+        if (!comp) return;
+        comp.show(str);
     }
 }

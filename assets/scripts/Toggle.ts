@@ -19,16 +19,20 @@ export default class NewClass extends cc.Component {
         this._act = v;
         // 
         this.sp.spriteFrame = v ? this.spGreen : this.spWhite;
+        this.label.node.color = v ? cc.color(255, 255, 255) : cc.color(17, 17, 17);
     }
 
 
 
     @property(cc.Sprite)
     sp: cc.Sprite = null;
+    @property(cc.Label)
+    label: cc.Label = null;
     @property(cc.Node)
     nodeCanvas: cc.Node = null;
     @property(cc.Integer)
     index: number = 0;
+
 
     @property(cc.SpriteFrame)
     spWhite: cc.SpriteFrame = null;
