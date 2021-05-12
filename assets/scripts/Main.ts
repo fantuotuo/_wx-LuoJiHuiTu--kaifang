@@ -32,6 +32,15 @@ interface UserInfo {
 }
 
 
+interface GiftObj {
+    sendCount: number;
+    receiveRecords: {
+        fromOpenid: string;
+        time: number;
+    }[]
+}
+
+
 @ccclass
 export default class NewClass extends cc.Component {
     
@@ -57,7 +66,12 @@ export default class NewClass extends cc.Component {
             toggle.act = v === i;
         });
         if (v === 0) {
-            this.drawRankList();
+            if (this.selfOpenid) {
+                // 不是onLoad里面的，是后面切换的，需要重新刷新
+                this.initFriendsData();
+            } else {
+                this.drawRankList();
+            }
         } else {
             this.drawWorldRankList();
         }
@@ -97,7 +111,7 @@ export default class NewClass extends cc.Component {
             success: ({ data }: { data: UserGameData[] }) => {
                 this.log("成功获取好友数据：", data);
                 
-                this.friendsDataList = data
+                this.friendsDataList = data;console.log(data)
                 // 初始化剩余赠送次数
                 const self = this.friendsDataList.find(item => item.openid === this.selfOpenid);
                 if (self) {
@@ -109,18 +123,18 @@ export default class NewClass extends cc.Component {
                     });
                 }
 
-                let selfGiftData = self.KVDataList.find(item => item.key === this.giftStorageKey)
-                if (selfGiftData) {
-                    let selfGiftDataObj: { sendCount: number } = JSON.parse(selfGiftData.value);
-                    this.giftCountRemaining = this.initGiftCountRemaining - selfGiftDataObj.sendCount
-                } else {
-                    this.giftCountRemaining = this.initGiftCountRemaining
-                }
+                // let selfGiftData = self.KVDataList.find(item => item.key === this.giftStorageKey)
+                // if (selfGiftData) {
+                //     let selfGiftDataObj: GiftObj = JSON.parse(selfGiftData.value);
+                //     this.giftCountRemaining = this.initGiftCountRemaining - selfGiftDataObj.sendCount
+                // } else {
+                //     this.giftCountRemaining = this.initGiftCountRemaining
+                // }
 
-                this.rankType===0 && this.drawRankList()
-                this.drawGiftCountRemaining()
+                this.rankType === 0 && this.drawRankList();
+                // this.drawGiftCountRemaining();
             }
-        })
+        });
     }
     /**
      * 刷新显示
@@ -136,7 +150,8 @@ export default class NewClass extends cc.Component {
             item.parent = this.containerUserBar;
 
             var obj = friendsDataList[i],
-                comp = item.getComponent(UserBar);
+                comp = item.getComponent(UserBar),
+                obj_gift = this.getGift(obj.KVDataList);
             comp.init(
                 i + 1,
                 obj.avatarUrl,
@@ -145,7 +160,8 @@ export default class NewClass extends cc.Component {
                 obj.openid
             );
             // 更新zanBtn显示
-            comp.selfOpenid = this.selfOpenid;
+            var openid_same = !this.selfOpenid || obj.openid === this.selfOpenid;
+            comp.canGift = !openid_same && !this.getGiftRecord(obj_gift);
         }
     }
     drawWorldRankList() {
@@ -196,20 +212,6 @@ export default class NewClass extends cc.Component {
                     // 世界
                     this.worldDataList = data.rankdata as WorldRankData[];
                     this.rankType === 1 && this.drawWorldRankList();
-                    // var idList = data.rankdata.map(item => {
-                    //     return item._openid;
-                    // });
-                    // wx.getUserInfo({
-                    //     openIdList: idList,
-                    //     lang: 'zh_CN',
-                    //     success: (res: { data: UserInfo[] }) => {
-                    //         console.log("getUserInfo",res,idList)
-                    //         this.updateWorldDataItem(res.data);
-                    //     },
-                    //     fail: (res) => {
-                            
-                    //     }
-                    // });
                     break;
                 default:
                     break;
@@ -221,7 +223,7 @@ export default class NewClass extends cc.Component {
 
 
     /**
-     * 更新世界数据
+     * 更新世界数据（getUserInfo只能获取好友的信息，其他人的信息获取不到，所以废弃）
     */
     // updateWorldDataItem(data: UserInfo[]) {
     //     for (var k = 0; k < this.worldDataList.length; k++){
@@ -263,12 +265,33 @@ export default class NewClass extends cc.Component {
      * @return score string类型
     */
     getScore(KVDataList: KVData[]) {
+        var key_score = "stars";
         for (var i = 0; i < KVDataList.length; i++){
-            if (KVDataList[i].key === "stars") {
+            if (KVDataList[i].key === key_score) {
                 return KVDataList[i].value;
             }
         }
         return "-";
+    }
+    getGift(KVDataList: KVData[]) {
+        var key_gift = this.giftStorageKey,
+            obj_gift: GiftObj;
+        for (var i = 0; i < KVDataList.length; i++){
+            if (KVDataList[i].key === key_gift) {
+                obj_gift = JSON.parse(KVDataList[i].value);
+                return obj_gift;
+            }
+        }
+        return {
+            sendCount: 0,
+            receiveRecords: []
+        };
+    }
+    getGiftRecord(obj_gift: GiftObj) {
+        var find = obj_gift.receiveRecords.find(record => {
+            return record.fromOpenid === this.selfOpenid;
+        });
+        return Boolean(find);
     }
     /**
      * 【作废】

@@ -14,15 +14,16 @@ export default class NewClass extends cc.Component {
     
 
     openid: string = "";
-    _selfOpenid: string = "";
-    get selfOpenid() {
-        return this._selfOpenid;
+    _canGift: boolean = false;
+    get canGift() {
+        return this._canGift;
     }
-    set selfOpenid(v) {
-        this._selfOpenid = v;
+    set canGift(v) {
+        this._canGift = v;
         // 
         this.checkCanZan();
     }
+
 
     @property(cc.Label)
     labelRank: cc.Label = null;
@@ -46,7 +47,7 @@ export default class NewClass extends cc.Component {
     init(rank: number, avatarUrl: string, name: string, score: string, openid: string) {
         this.openid = openid;
         this.labelRank.string = `${rank}`;
-        this.labelName.string = `${name?name:"未知昵称"}`;
+        this.labelName.string = `${name ? name : "未知昵称"}`;
         this.labelScore.string = `${score}星`;
         
         var avatar = this.avatar;
@@ -54,7 +55,7 @@ export default class NewClass extends cc.Component {
             avatar.spriteFrame = new cc.SpriteFrame(tex);
         });
 
-        this.nodeBtnZan.active = false;
+        this.canGift = false;
     }
 
 
@@ -89,16 +90,7 @@ export default class NewClass extends cc.Component {
         });
     }
     checkCanZan() {
-        var openidSame = !this.selfOpenid || this.selfOpenid === this.openid;
-        this.nodeBtnZan.active = !openidSame;
-        return;
-
-        var ZanObj = Data.ZanObj,
-            key = new Date().toDateString(),
-            ZanObjToday = ZanObj[key] as string[];
-        var ZanPre = ZanObjToday && ZanObjToday.indexOf(this.openid) >= 0;
-
-        this.nodeBtnZan.active = !openidSame && !ZanPre;
+        this.nodeBtnZan.active = this.canGift;
     }
     showModal(str: string) {
         var node = cc.find("Canvas/modal");
