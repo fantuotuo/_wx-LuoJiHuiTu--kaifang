@@ -1,4 +1,5 @@
 var wx = window["wx"];
+const LIMIT = 40;
 
 const { ccclass, property } = cc._decorator;
 import UserBar from "./UserBar";
@@ -143,8 +144,8 @@ export default class NewClass extends cc.Component {
         this.containerUserBar.removeAllChildren();
         this.sortArray(this.friendsDataList);
 
-        // 显示20个
-        var friendsDataList = this.friendsDataList.slice(0, 20);
+        // 显示LIMIT个
+        var friendsDataList = this.friendsDataList.slice(0, LIMIT);
         for (var i = 0; i < friendsDataList.length; i++){
             var item = cc.instantiate(this.prefabUserBar);
             item.parent = this.containerUserBar;
@@ -167,8 +168,8 @@ export default class NewClass extends cc.Component {
     drawWorldRankList() {
         this.containerUserBar.removeAllChildren();
 
-        // 显示20个
-        var worldDataList = this.worldDataList.slice(0, 20);
+        // 显示LIMIT个
+        var worldDataList = this.worldDataList.slice(0, LIMIT);
         for (var i = 0; i < worldDataList.length; i++){
             var item = cc.instantiate(this.prefabUserBar);
             item.parent = this.containerUserBar;
