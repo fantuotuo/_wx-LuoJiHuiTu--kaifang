@@ -63,7 +63,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Canvas",
-    "_objFlags": 0,
+    "_objFlags": 512,
     "_parent": {
       "__id__": 1
     },
@@ -3343,6 +3343,12 @@
     "_enabled": true,
     "prefabUserBar": {
       "__uuid__": "4e0e2d5b-17ac-4acf-84a8-6bb4a5112c86"
+    },
+    "nodeView": {
+      "__id__": 25
+    },
+    "scrollView": {
+      "__id__": 33
     },
     "containerUserBar": {
       "__id__": 26

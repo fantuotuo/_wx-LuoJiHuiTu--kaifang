@@ -88,7 +88,12 @@ export default class NewClass extends cc.Component {
     
 
     @property(cc.Node)
+    nodeView: cc.Node = null;
+    @property(cc.ScrollView)
+    scrollView: cc.ScrollView = null;
+    @property(cc.Node)
     containerUserBar: cc.Node = null;
+
     @property(cc.Label)
     labelMyName: cc.Label = null;
     @property(cc.Label)
@@ -200,8 +205,11 @@ export default class NewClass extends cc.Component {
         this.log("sub load");
         this.modal.hide();
         if (!this.isWechat()) return;
-
         this.rankType = 0;
+        this.scrollView.node.on('scrolling', this.onScrolling, this);
+        this.scheduleOnce(() => {
+            this.onScrolling(this.scrollView);
+        });
         wx.onMessage(data => {
             this.log("接收主域发来的消息数据：", data);
             switch (data.messageType) {
@@ -337,5 +345,17 @@ export default class NewClass extends cc.Component {
                 
             }
         });
+    }
+    onScrolling(scrollView: cc.ScrollView) {
+        var viewRect = cc.rect(-this.nodeView.width / 2, -this.containerUserBar.y - this.nodeView.height / 2, this.nodeView.width, this.nodeView.height);
+
+        for (var i = 0; i < this.containerUserBar.children.length; i++){
+            var node = this.containerUserBar.children[i];
+            if (viewRect.intersects(node.getBoundingBox())) {
+                node.opacity = 255;
+            } else {
+                node.opacity = 0;
+            }
+        }
     }
 }
